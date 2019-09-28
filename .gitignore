@@ -5,3 +5,5 @@ dl.cfg
 utils/
 .ipynb_checkpoints/
 *.parquet/
+notebooks/
+sample_data/
