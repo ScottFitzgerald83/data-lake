@@ -1,3 +1,5 @@
 venv/
 dl.cfg
 .idea/
+.DS_Store
+utils/
