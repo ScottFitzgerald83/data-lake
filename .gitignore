@@ -4,3 +4,4 @@ dl.cfg
 .DS_Store
 utils/
 .ipynb_checkpoints/
+*.parquet/
