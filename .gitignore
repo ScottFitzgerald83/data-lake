@@ -7,3 +7,4 @@ utils/
 *.parquet/
 notebooks/
 sample_data/
+explore_data.*
