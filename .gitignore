@@ -1,3 +1,10 @@
 venv/
 dl.cfg
 .idea/
+.DS_Store
+utils/
+.ipynb_checkpoints/
+*.parquet/
+notebooks/
+sample_data/
+explore_data.*

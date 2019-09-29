@@ -53,43 +53,43 @@ description: records in log data associated with song plays i.e. records with pa
 
 |column|type|description|
 |---|---|---|
-user_id|integer|TODO 
-first_name|varchar|TODO
-last_name|varchar|TODO
-gender|varchar|TODO
-level|varchar|TODO
+`user_id`|integer|TODO
+`first_name`|varchar|TODO
+`last_name`|varchar|TODO
+`gender`|varchar|TODO
+`level`|varchar|TODO
 
 `songs` - songs in music database
 
 |column|type|description|
 |---|---|---|
-song_id|varchar|TODO
-title|varchar|TODO
-artist_id|varchar|TODO
-year|varchar|TODO
-duration|varchar|TODO
+`song_id`|varchar|TODO
+`title`|varchar|TODO
+`artist_id`|varchar|TODO
+`year`|varchar|TODO
+`duration`|varchar|TODO
 
 `artists` - artists in music database
 
 |column|type|description|
 |---|---|---|
-artist_id|varchar|TODO
-name|varchar|TODO
-location|varchar|TODO
-latitude|varchar|TODO
-longitude|varchar|TODO
+`artist_id`|varchar|TODO
+`name`|varchar|TODO
+`location`|varchar|TODO
+`latitude`|varchar|TODO
+`longitude`|varchar|TODO
 
 `time` - timestamps of records in songplays broken down into specific units
 
 |column|type|description|
 |---|---|---|
-start_time| integer | TODO
-hour| integer | TODO
-day| integer | TODO
-week| integer | TODO
-month| integer | TODO
-year| integer | TODO
-weekday| integer | TODO
+`start_time`| integer | TODO
+`hour`| integer | TODO
+`day`| integer | TODO
+`week`| integer | TODO
+`month`| integer | TODO
+`year`| integer | TODO
+`weekday`| integer | TODO
 
 
 ## Rationale for schema design
