@@ -1,25 +1,34 @@
 import configparser
-from datetime import datetime
 import os
+from datetime import datetime
 
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, monotonically_increasing_id, udf, to_timestamp
+from pyspark.sql.functions import monotonically_increasing_id, udf, to_timestamp
 from pyspark.sql.functions import year, month, dayofmonth, hour, weekofyear, date_format
 
-config = configparser.ConfigParser()
-config.read_file(open("dl.cfg"))
-os.environ["AWS_ACCESS_KEY_ID"] = config.get("AWS", "AWS_ACCESS_KEY_ID")
-os.environ["AWS_SECRET_ACCESS_KEY"] = config.get("AWS", "AWS_SECRET_ACCESS_KEY")
-
-DESTINATION_S3_BUCKET = config.get('AWS', 'S3_BUCKET')
-DATA_SOURCE_S3_BUCKET = "udacity-dend/"
+SOURCE_BUCKET = "udacity-dend"
+TARGET_BUCKET = ''  # is defined in get_credentials()
+PATH_TO_CONFIG_FILE = './dl.cfg'  # assuming your credentials are stored here; feel free to change
 
 
-def create_spark_session(debug=False):
-    if debug:
-        from pyspark import SparkContext
-        sc = SparkContext()
-        sc.setLogLevel("DEBUG")
+def get_credentials(path):
+    """
+    Read in AWS credentials from config located at `path`. Should resemble the following:
+    [AWS]
+    AWS_ACCESS_KEY_ID=YOURACCESSKEY
+    AWS_SECRET_ACCESS_KEY=y0uR$up3R$3Cr3Tt0k3nH3R3
+    TARGET_BUCKET = bucket-name/path
+    :return: None
+    """
+    global TARGET_BUCKET
+    config = configparser.ConfigParser()
+    config.read_file(open(path))
+    os.environ["AWS_ACCESS_KEY_ID"] = config.get("AWS", "AWS_ACCESS_KEY_ID")
+    os.environ["AWS_SECRET_ACCESS_KEY"] = config.get("AWS", "AWS_SECRET_ACCESS_KEY")
+    TARGET_BUCKET = config.get("AWS", "TARGET_BUCKET")
+
+
+def create_spark_session():
     return SparkSession.builder \
         .appName("Sparkify data lake") \
         .getOrCreate()
@@ -34,7 +43,7 @@ def process_song_data(spark, input_data, output_data):
     :return:
     """
     s3_path = output_data
-    song_files = f"{input_data}/song_data/*/*/*/*.json"
+    song_files = f"{input_data}/song_data/A/A/A/*.json"
     song_data_df = spark.read.json(song_files)
 
     # build and write songs table to s3, partitioned by year and artist id
@@ -67,7 +76,7 @@ def process_log_data(spark, input_data, song_data_df, output_data):
     :return:
     """
     s3_path = output_data
-    log_files = f"{input_data}/log_data"
+    log_files = f"{input_data}/log_data/2018/11/2018-11-01-events.json"
     log_data_df = spark.read.json(log_files).filter("page = 'NextSong'")
 
     # Build and write users table to s3
@@ -97,7 +106,6 @@ def process_log_data(spark, input_data, song_data_df, output_data):
         .mode("overwrite") \
         .partitionBy("year", "month") \
         .parquet(f"{s3_path}/time")
-
     # aliases, conditions, and datetime format for songplays join
     e = log_data_df.alias("e")
     s = song_data_df.alias("s")
@@ -130,9 +138,10 @@ def process_log_data(spark, input_data, song_data_df, output_data):
 
 
 def main():
-    spark = create_spark_session(debug=True)
-    input_data = f"s3a://{DATA_SOURCE_S3_BUCKET}"
-    output_data = f"s3a://{DESTINATION_S3_BUCKET}"
+    get_credentials(PATH_TO_CONFIG_FILE)
+    spark = create_spark_session()
+    input_data = f"s3a://{SOURCE_BUCKET}"
+    output_data = f"s3a://{TARGET_BUCKET}"
 
     song_data = process_song_data(spark, input_data, output_data)
     process_log_data(spark, input_data, song_data, output_data)
