@@ -95,9 +95,13 @@ description: records in log data associated with song plays i.e. records with pa
 
 ## Rationale for schema design
 `users`: there should be a unique row per user, with no duplicate rows. It's possible that a user shows up in both the free and paid tiers, but these are not considered duplicates.
+
 `songs`: duplicates are dropped here as well as they don't convey any additional useful information. We don't need multiple rows for the same song.
+
 `artists`: same thing as songs
+
 `time`: not sure what the purpose of this table has been throughout these projects, but this is just a list of date parts for each songplay from the log events. Duplicates are not dropped here, as multiple users may listen at the same time. That said, there's nothing intrinsic to this table alone that gives any meaning to any of the timestamps, whether or not they are duplicates.
+
 `songplays`: These are log events where the page column of the event is equal to `NextSong`. These pages indicate a discrete songplay. Duplicates are dropped if they exist.
 
 ## ETL explanation
