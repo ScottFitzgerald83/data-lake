@@ -76,7 +76,7 @@ def process_log_data(spark, input_data, song_data_df, output_data):
     :return:
     """
     s3_path = output_data
-    log_files = f"{input_data}/log_data/2018/11/2018-11-01-events.json"
+    log_files = f"{input_data}/log_data/2018/11/*.json"
     log_data_df = spark.read.json(log_files).filter("page = 'NextSong'")
 
     # Build and write users table to s3
@@ -106,6 +106,7 @@ def process_log_data(spark, input_data, song_data_df, output_data):
         .mode("overwrite") \
         .partitionBy("year", "month") \
         .parquet(f"{s3_path}/time")
+
     # aliases, conditions, and datetime format for songplays join
     e = log_data_df.alias("e")
     s = song_data_df.alias("s")
@@ -115,18 +116,19 @@ def process_log_data(spark, input_data, song_data_df, output_data):
     # Build and write songplays table partitioned by year and month
     # join events data on songs data to get song and artist ids
     e.join(s, join_conditions, how="left") \
-        .withColumn("songplay_id", monotonically_increasing_id()).select(
-        "songplay_id",
-        to_timestamp(ts_from_epoch("ts"), datetime_format).alias("start_time"),
-        year(ts_from_epoch("ts")).alias("year"),
-        month(ts_from_epoch("ts")).alias("month"),
-        "userId",
-        "level",
-        "song_id",
-        "artist_id",
-        "sessionId",
-        "location",
-        "userAgent") \
+        .withColumn("songplay_id", monotonically_increasing_id())\
+        .select(
+            "songplay_id",
+            to_timestamp(ts_from_epoch("ts"), datetime_format).alias("start_time"),
+            year(ts_from_epoch("ts")).alias("year"),
+            month(ts_from_epoch("ts")).alias("month"),
+            "userId",
+            "level",
+            "song_id",
+            "artist_id",
+            "sessionId",
+            "location",
+            "userAgent") \
         .withColumnRenamed("userId", "user_id") \
         .withColumnRenamed("sessionId", "session_id") \
         .withColumnRenamed("userAgent", "user_agent") \
