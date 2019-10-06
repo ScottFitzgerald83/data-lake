@@ -49,7 +49,7 @@ def process_song_data(spark, input_data, output_data):
     # build and write songs table to s3, partitioned by year and artist id
     song_data_df.select \
         ("song_id", "title", "artist_id", "year", "duration") \
-        .dropDuplicates() \
+        .dropDuplicates(["song_id"]) \
         .write \
         .mode("overwrite") \
         .partitionBy("year", "artist_id") \
@@ -58,7 +58,7 @@ def process_song_data(spark, input_data, output_data):
     # build and write artists table to s3
     song_data_df.select \
         ("artist_id", "artist_name", "artist_location", "artist_latitude", "artist_longitude") \
-        .dropDuplicates() \
+        .dropDuplicates(["artist_id"]) \
         .write \
         .mode("overwrite") \
         .parquet(f"{s3_path}/artists")
@@ -82,7 +82,7 @@ def process_log_data(spark, input_data, song_data_df, output_data):
     # Build and write users table to s3
     log_data_df \
         .select("userId", "firstName", "lastName", "gender", "level") \
-        .dropDuplicates() \
+        .dropDuplicates(["userId"]) \
         .write \
         .mode("overwrite") \
         .parquet(f"{s3_path}/users")
@@ -132,7 +132,7 @@ def process_log_data(spark, input_data, song_data_df, output_data):
         .withColumnRenamed("userId", "user_id") \
         .withColumnRenamed("sessionId", "session_id") \
         .withColumnRenamed("userAgent", "user_agent") \
-        .dropDuplicates() \
+        .dropDuplicates(["start_time"]) \
         .write \
         .mode("overwrite") \
         .partitionBy("year", "month") \
